@@ -2,7 +2,7 @@
 /*
 Plugin Name: Minimalist Testimonials
 Description: a very light-weight testimonials plugin.  Shortcode [mnmltestimonials]
-Version:     0.1
+Version:     0.2.0
 Plugin URI:  
 Author:      Andrew J Klimek
 Author URI:  https://github.com/andrewklimek
@@ -19,6 +19,14 @@ particular purpose. See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with 
 Minimalist Testimonials. If not, see https://www.gnu.org/licenses/gpl-2.0.html.
+*/
+
+
+/*
+
+TODO:
+Add option to specify number of slides per page and maybe what pixel it switches to 1
+Add option for seconds between transition
 */
 
 function mnmonials($a){
@@ -78,34 +86,71 @@ function mnmonials($a){
 								
 		?>
 		<style>
-		.mnmonials-track{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-transition:-webkit-transform linear .5s;transition:-webkit-transform linear .5s;transition:transform linear .5s;transition:transform linear .5s, -webkit-transform linear .5s;position:relative;}
-		.mnmonials{width:100%;-webkit-box-flex:0;-ms-flex:0 0 auto;flex:0 0 auto;}
-		@media(min-width:30em){.mnmonials{width:50%;}}
-		@media(min-width:50em){.mnmonials{width:33.33333%;}}
+		.mnmonials-track{display:-ms-flexbox;display:flex;transition:transform linear .5s;position:relative}
+		.mnmonials{width:100%;-ms-flex:0 0 auto;flex:none}
+		/* @media(min-width:600px){.mnmonials{width:50%}} */
+		@media(min-width:900px){.mnmonials{width:33.333%}}
 		</style>
-		<script>(function(){function d(b){a=c.querySelector("[data-mnmonials]")||c.firstElementChild;a.removeAttribute("data-mnmonials");a=b?a.previousElementSibling:a.nextElementSibling||c.firstElementChild;c.style.transform="translateX(-"+a.offsetLeft+"px)";a.setAttribute("data-mnmonials","")}var c=document.querySelector(".mnmonials-track"),a,b;var e=setInterval(d,6E3);document.addEventListener("visibilitychange",function(){document.hidden?clearInterval(e):e=setInterval(d,6E3)});c.addEventListener("touchstart",
-function(a){b=a.changedTouches[0].pageX});c.addEventListener("touchend",function(a){b-=a.changedTouches[0].pageX;-60>b?d(1):60<b?d():b=0;b&&clearInterval(e)})})();</script>
+		<script>!function(){function e(e){e?--o:++o,0>o&&(o=0),r.style.transition="",r.style.transform="translateX(-"+100*o/(innerWidth<900?1:3)+"%)",o>a.length-4&&setTimeout(function(){o=0,r.style.transition="none",r.style.transform=""},3e3)}var t,n,r=document.querySelector(".mnmonials-track"),a=r.children,o=0;r.insertAdjacentHTML("beforeend",a[0].outerHTML+a[1].outerHTML+a[2].outerHTML),t=setInterval(e,6e3),document.addEventListener("visibilitychange",function(){document.hidden?clearInterval(t):t=setInterval(e,6e3)}),r.addEventListener("touchstart",function(e){n=e.changedTouches[0].pageX}),r.addEventListener("touchend",function(r){n-=r.changedTouches[0].pageX,-60>n?e(1):n>60?e():n=0,n&&clearInterval(t)})}();
+		</script>
 		</div>
 		<?php
 		
-		/*** JS before minification
-		var track = document.querySelector('.mnmonials-track'),
-			activeAttribute = 'data-mnmonials',
-			activeSlide, iid, touch;
+		/**** Before Minified
 		
-		iid=setInterval(next,6e3);document.addEventListener('visibilitychange',function(){document.hidden?clearInterval(iid):(iid=setInterval(next,6e3));});
+		var track = document.querySelector('.mnmonials-track')
+			, slides = track.children
+			// , slideNo = slides.length - 1
+			, os = 0
+			, iid, touch;
+			
+		
+		// copy first 3 slides to end for infinite loop effect
+		track.insertAdjacentHTML('beforeend', slides[0].outerHTML + slides[1].outerHTML + slides[2].outerHTML );
+		
+		iid=setInterval(next,6e3);
+		
+		document.addEventListener('visibilitychange',function(){document.hidden ? clearInterval(iid) : (iid=setInterval(next,6e3));});
 		
 		track.addEventListener('touchstart', function(e){ touch=e.changedTouches[0].pageX; });
         track.addEventListener('touchend', function(e){ touch-=e.changedTouches[0].pageX; touch < -60 ? next(1) : touch > 60 ? next() : touch=0; touch && clearInterval(iid); });
         
-        function next(prev) {
-			activeSlide = track.querySelector('['+ activeAttribute +']') || track.firstElementChild;
-			activeSlide.removeAttribute(activeAttribute);
-			activeSlide = prev ? activeSlide.previousElementSibling : activeSlide.nextElementSibling || track.firstElementChild;
-			track.style.transform = 'translateX(-'+ activeSlide.offsetLeft +'px)';
-			activeSlide.setAttribute(activeAttribute,'');
+        function next(prev)
+		{	
+			prev?--os:++os;
+			if(os<0)os=0;
+		
+			track.style.transition='';
+			// track.style.transform = 'translateX(-'+ os * 100 / Math.min( 3, Math.floor(innerWidth / 300) ) +'%)';
+			track.style.transform = 'translateX(-'+ os * 100 / (innerWidth < 900 ? 1 : 3) +'%)';
+			
+			if ( os > slides.length - 4 ) setTimeout( function(){	
+				os = 0;
+				track.style.transition = 'none';
+				track.style.transform = '';
+			}, 3e3 );
 		}
-		***/
+		
+		** End Before Minified */
+		
+		
+		/*** cool but has a double pause when loops around again
+		function next(prev)
+		{	
+			prev?--os:++os;
+			if(os<0)os=0;
+			if ( os > slides.length - 4 )
+			{	
+				os = 0;
+				track.style.transition = 'none';
+				track.style.transform = '';
+			}
+			else {
+				track.style.transition='';
+				track.style.transform = 'translateX(-'+ os * 100/3 +'%)';
+			}
+		}
+		*/
 		
 		/* For cancelling slider when tab is not active,
 		This method is fewer characters for sure but i just hate the way it slides the instant you go back to the tab
@@ -150,6 +195,8 @@ function mnmonials_add_custom_box() {
  * add the meta box.  As of 4.4, we don't need to do anything to actually write the meta on post save.
  * It is automatically by using name='meta_input[custom_meta_key]'
  * See https://github.com/WordPress/WordPress/blob/e6267dcf19f1309954e04b65a7fa8e9e2df5d0a4/wp-includes/post.php#L2825
+ * 
+ * I believe this is now broken as of 5.0.1, yet it still seems to be in the place referenced.
  */
 function mnmonials_inner_custom_box( $post ) {
 	$values = get_post_meta( $post->ID );
