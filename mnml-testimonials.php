@@ -33,7 +33,7 @@ function mnmonials($a){
 	
 	$return = '';
 	
-	$num = !empty( $a['num'] ) ? $a['num'] : !empty( $a['list'] ) ? -1 : 20;
+	$num = !empty( $a['num'] ) ? $a['num'] : ( !empty( $a['list'] ) ? -1 : 20 );
 	
 	$query = new WP_Query( array( 
 		// 'category_name' => $a['cat'],
