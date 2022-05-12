@@ -47,8 +47,9 @@ function mnmonials($a){
 		
 		ob_start();
 		
-		// [mnmltestimonials list=1] will print all testimonials, no carousel		
-		echo empty( $a['list'] ) ? '<div style="overflow-x:hidden"><div class="mnmonials-track">' : '<div class="mnmonials-archive">';
+		// [mnmltestimonials list=1] will print all testimonials, no carousel
+		if ( empty( $a['list'] ) ) echo '<div style="overflow-x:hidden"><div class="mnmonials-track">';
+		elseif ( isset($a['wrapper']) ) echo '<div class="mnmonials-archive">';
 		
 		while ( $query->have_posts() ) {
 			
@@ -80,9 +81,11 @@ function mnmonials($a){
 		
 		}
 		
-		echo "</div>\n";
+		if ( isset($a['wrapper']) ) echo "</div>\n";
 		
 		if ( empty( $a['list'] ) ) :
+		
+			echo "</div>\n";
 								
 		?>
 		<style>
